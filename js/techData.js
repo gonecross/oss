@@ -155,6 +155,16 @@ const TECH_DATA = {
       "aiAssistantUpgrade": true,
       "description": "人工智能让自动化与灵感生产进入新高度，智能革命到来。"
     }
+  },
+  "geneticEngineering": {
+    "name": "基因改良",
+    "unlocked": false,
+    "cost": { "ideas": 10000000000, "metal": 2000000000000, "wood": 1000 },
+    "requirements": ["artificialIntelligence"],
+    "effects": {
+      "max population": Infinity,
+      "description": "永恒"
+    }
   }
 };
 

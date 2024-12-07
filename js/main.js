@@ -14,7 +14,7 @@ let inspirationMultiplier = 1;
 let aiClickSpeed = 0; // AI助理点击速率
 let currentTechKey = null;
 
-const INSPIRATION_TO_IDEA_RATIO = 10; // 10灵感换1想法的比例
+const INSPIRATION_TO_IDEA_RATIO = 1; // 10灵感换1想法的比例
 
 // 游戏初始化
 document.addEventListener('DOMContentLoaded', () => {
@@ -297,8 +297,9 @@ function renderTechGraph() {
     internet: { x: 500, y: 300 },
     artificialIntelligence: { x: 600, y: 300 },
     copperSmelting: { x: 300, y: 50 },
-    ironSmelting: { x: 300, y: 400 }
+    ironSmelting: { x: 300, y: 400 },
     // 可以在 techData.js 中扩展更多科技，并在此为其指定坐标
+    geneticEngineering: { x: 600, y: 150 }
   };
 
   // 绘制连线
