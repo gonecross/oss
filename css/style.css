@@ -1,0 +1,50 @@
+body {
+  background: linear-gradient(to right, #eef2f3, #8e9eab);
+  color: #333;
+  font-family: sans-serif;
+}
+
+.card {
+  background: #ffffffcc;
+  backdrop-filter: blur(10px);
+}
+
+#tech-graph-container {
+  border-radius: 10px;
+}
+
+.node text {
+  font-size: 14px;
+  fill: #fff;
+  font-weight: bold;
+}
+
+.node.unlocked rect {
+  fill: linear-gradient(to bottom, #4CAF50, #45A049);
+  stroke: #2e7d32;
+}
+
+.node.locked rect {
+  fill: #757575;
+  stroke: #424242;
+}
+
+.edge {
+  stroke: #999;
+  stroke-width: 2px;
+  marker-end: url(#arrowhead);
+}
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  .card-title {
+    font-size: 1rem;
+  }
+
+  .node text {
+    font-size: 12px;
+  }
+}
