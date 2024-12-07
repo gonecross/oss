@@ -4,7 +4,7 @@ let ideas = 0;
 let population = 10; // 初始普通人口
 let educatedPopulation = 0;
 let maxPopulation = 10;
-let inspirationIndex = 0;
+let inspiration = 0; // 将inspirationIndex重命名为inspiration，更清晰
 let wood = 0;
 let metal = 0;
 let communicationMultiplier = 1;
@@ -14,8 +14,11 @@ let inspirationMultiplier = 1;
 let aiClickSpeed = 0; // AI助理点击速率
 let currentTechKey = null;
 
+const INSPIRATION_TO_IDEA_RATIO = 10; // 10灵感换1想法的比例
+
 // 游戏初始化
 document.addEventListener('DOMContentLoaded', () => {
+  document.title = "小小发明家：进化之路"; // 修改标题
   renderUI();
   loadGame();
 
@@ -34,18 +37,13 @@ function gameLoop() {
 
 // 资源生产逻辑
 function produceResources() {
-  // 每秒生产资源 = 人口 * 生产率 * (特定资源系数)
-  // 木材产量
   let woodGain = (population * productionRate * 0.1);
-  // 金属产量
   let metalGain = (population * productionRate * 0.05);
 
   wood += woodGain;
   wood = parseFloat(wood.toFixed(2));
   metal += metalGain;
   metal = parseFloat(metal.toFixed(2));
-  console.log("wood gain: ", woodGain, "metal gain: ", metalGain);
-  console.log("wood: ", wood, "metal: ", metal);
 }
 
 // 人口增长逻辑
@@ -59,8 +57,6 @@ function growPopulation() {
 
 // 教育逻辑
 function educatePopulation() {
-  // 根据教育速率，每秒将部分普通人口转化为受教育人口
-  // 简化为每秒转化1个（*教育倍率）
   let canConvert = Math.min(1 * educationRate, population - educatedPopulation);
   educatedPopulation += canConvert;
 }
@@ -68,7 +64,8 @@ function educatePopulation() {
 // 灵感计算
 function calculateInspiration() {
   // 灵感 = 受教育人口 * communicationMultiplier * inspirationMultiplier
-  inspirationIndex += educatedPopulation * communicationMultiplier * inspirationMultiplier;
+  inspiration += educatedPopulation * communicationMultiplier * inspirationMultiplier;
+  inspiration = parseFloat(inspiration.toFixed(2));
 }
 
 // 自动点击（AI助理）
@@ -108,17 +105,22 @@ function unlockTechnology(techKey) {
     }
   }
 
-  // 检查资源
-  if ((tech.cost.ideas && tech.cost.ideas > ideas) ||
-    (tech.cost.wood && tech.cost.wood > wood) ||
-    (tech.cost.metal && tech.cost.metal > metal)) {
+  // 检查资源(这里保留用ideas和inspiration解锁科技的可能性)
+  // 如果某些高级科技需要inspiration，可以在cost中加入inspiration字段检查
+  let costIdeas = tech.cost.ideas || 0;
+  let costWood = tech.cost.wood || 0;
+  let costMetal = tech.cost.metal || 0;
+  let costInspiration = tech.cost.inspiration || 0; // 新增灵感消耗
+
+  if (costIdeas > ideas || costWood > wood || costMetal > metal || costInspiration > inspiration) {
     return { success: false, message: "资源不足" };
   }
 
   // 扣资源
-  if (tech.cost.ideas) ideas -= tech.cost.ideas;
-  if (tech.cost.wood) wood -= tech.cost.wood;
-  if (tech.cost.metal) metal -= tech.cost.metal;
+  ideas -= costIdeas;
+  wood -= costWood;
+  metal -= costMetal;
+  inspiration -= costInspiration;
 
   tech.unlocked = true;
 
@@ -143,6 +145,17 @@ function unlockTechnology(techKey) {
 function clickToGetIdea() {
   ideas++;
   updateUI();
+}
+
+// 将灵感转换为想法的函数
+function convertInspirationToIdeas() {
+  if (inspiration >= INSPIRATION_TO_IDEA_RATIO) {
+    let numIdeasGained = Math.floor(inspiration / INSPIRATION_TO_IDEA_RATIO);
+    ideas += numIdeasGained;
+    inspiration -= numIdeasGained * INSPIRATION_TO_IDEA_RATIO;
+    inspiration = parseFloat(inspiration.toFixed(2));
+    updateUI();
+  }
 }
 
 // 显示科技详情
@@ -182,11 +195,11 @@ function showTechDetails(techKey) {
 // 更新UI
 function updateUI() {
   document.getElementById('idea-count').innerText = Math.floor(ideas);
-  document.getElementById('inspiration-count').innerText = Math.floor(inspirationIndex);
+  document.getElementById('inspiration-count').innerText = Math.floor(inspiration);
   document.getElementById('population-count').innerText = Math.floor(population);
   document.getElementById('educated-population-count').innerText = Math.floor(educatedPopulation);
-  document.getElementById('wood-count').innerText = wood;
-  document.getElementById('metal-count').innerText = metal;
+  document.getElementById('wood-count').innerText = wood.toFixed(2);
+  document.getElementById('metal-count').innerText = metal.toFixed(2);
 
   document.getElementById('max-population-count').innerText = maxPopulation;
   document.getElementById('wood-rate').innerText = (population * productionRate * 0.1).toFixed(2);
@@ -207,7 +220,7 @@ function saveGame() {
     population,
     educatedPopulation,
     maxPopulation,
-    inspirationIndex,
+    inspiration,
     wood,
     metal,
     communicationMultiplier,
@@ -229,7 +242,7 @@ function loadGame() {
     population = state.population;
     educatedPopulation = state.educatedPopulation;
     maxPopulation = state.maxPopulation;
-    inspirationIndex = state.inspirationIndex;
+    inspiration = state.inspiration;
     wood = state.wood;
     metal = state.metal;
     communicationMultiplier = state.communicationMultiplier;
@@ -268,7 +281,7 @@ function renderTechGraph() {
   defs.appendChild(marker);
   svg.appendChild(defs);
 
-  // 简易布局示例（可根据需要调整坐标）
+  // 布局定义，可根据需要修改坐标
   const layout = {
     fire: { x: 100, y: 100 },
     tools: { x: 200, y: 100 },
@@ -285,7 +298,7 @@ function renderTechGraph() {
     artificialIntelligence: { x: 600, y: 300 },
     copperSmelting: { x: 300, y: 50 },
     ironSmelting: { x: 300, y: 400 }
-    // 可根据techData扩展更多节点并为其指定坐标
+    // 可以在 techData.js 中扩展更多科技，并在此为其指定坐标
   };
 
   // 绘制连线
@@ -312,7 +325,7 @@ function renderTechGraph() {
   for (let techKey in TECH_DATA) {
     const tech = TECH_DATA[techKey];
     const pos = layout[techKey];
-    if (!pos) continue; // 没有定义坐标的不显示
+    if (!pos) continue;
 
     const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
     g.setAttribute("transform", `translate(${pos.x}, ${pos.y})`);

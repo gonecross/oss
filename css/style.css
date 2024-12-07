@@ -20,7 +20,7 @@ body {
 }
 
 .node.unlocked rect {
-  fill: linear-gradient(to bottom, #4CAF50, #45A049);
+  fill: #4CAF50;
   stroke: #2e7d32;
 }
 
